@@ -21,6 +21,7 @@ const Second = () => {
         }
         const data = await response.json()
         setShortUrls(data)
+        console.log(data)
       } catch (error) {
         console.error('Error fetching URLs:', error)
       } finally {
