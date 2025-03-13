@@ -1,17 +1,31 @@
 "use client"
 import React, { useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from "sonner"
 
 const Hero = () => {
   const [url, setUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const isValidUrl = (urlString: string) => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
   const handleSubmit = async () => {
     if (!url) return
     
+    if (!isValidUrl(url)) {
+      toast("Please enter a valid URL")
+      return
+    }
+
     setIsLoading(true)
     try {
-      const response = await fetch('http://127.0.0.1:8000/', {
+      const response = await fetch(process.env.NEXT_PUBLIC_BASE_URL + 'url/', {
         method: 'POST',
         credentials: "include",
         headers: {
@@ -21,16 +35,22 @@ const Hero = () => {
       })
       
       if (!response.ok) {
-        throw new Error('Failed to shorten URL')
+        const errorData = await response.json()
+        if (errorData.message === "URL already exists") {
+          toast(errorData.message)
+        } else {
+          throw new Error('Failed to shorten URL')
+        }
+        return
       }
 
       const data = await response.json()
-      toast.success('URL shortened successfully!')
+      toast("URL shortened successfully!")
       console.log(data) // Handle the shortened URL response
       
     } catch (error) {
       console.error('Error shortening URL:', error)
-      toast.error('Failed to shorten URL. Please try again.')
+      toast("Failed to shorten URL. Please try again.")
     } finally {
       setIsLoading(false)
     }
