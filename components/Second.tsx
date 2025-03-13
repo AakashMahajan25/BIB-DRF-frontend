@@ -22,6 +22,7 @@ const Second = () => {
         const data = await response.json()
         setShortUrls(data)
         console.log(data)
+        console.log(process.env.NEXT_PUBLIC_FRONTEND_URL)
       } catch (error) {
         console.error('Error fetching URLs:', error)
       } finally {
