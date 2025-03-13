@@ -4,7 +4,7 @@ import Second from '@/components/Second'
 
 const page = () => {
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen bg-black'>
       <Hero />
       <Second />
     </div>
