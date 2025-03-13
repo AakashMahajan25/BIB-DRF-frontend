@@ -1,38 +1,44 @@
-import React from 'react'
-import { redirect } from 'next/navigation'
+"use client";
 
-async function updateVisits(slug: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}url/all/shorts/${slug}/update/`, {
-    method: 'PUT'
-  })
-  if (!res.ok) {
-    throw new Error('Failed to update visit count')
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import axios from "axios";
+
+const Page = () => {
+  const params = useParams();
+  const [loading, setLoading] = useState(true);
+
+  const updateVisits = async () => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}url/all/shorts/${params?.slug}/update/`);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getUrl = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}url/all/shorts/${params?.slug}/`);
+      window.location.href = response?.data?.url;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    updateVisits();
+    getUrl();
+  }, [params]);
+
+  if (loading) {
+    return <div className="h-screen bg-black text-white flex justify-center item-center relative">
+      <p className="absolute top-1/2 left-1/2 text-xl -translate-x-1/2">Redirecting...</p>
+      </div>;
   }
-  return res.json()
-}
 
-async function getUrl(slug: string) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}url/all/shorts/${slug}/`)
-  if (!res.ok) {
-    throw new Error('Failed to fetch URL')
-  }
-  return res.json()
-}
+  return null;
+};
 
-const Page = async ({
-  params,
-}: {
-  params: { slug: string }
-}) => {
-  // First update the visit count
-  await updateVisits(params.slug)
-  
-  // Then get and redirect to the URL
-  const data = await getUrl(params.slug)
-  redirect(data.url)
-
-  // This won't be reached due to redirect
-  return null
-}
-
-export default Page
+export default Page;
